@@ -2,6 +2,7 @@ use std::env;
 use std::process;
 
 use advent_of_code_2023::AdventDay;
+use advent_of_code_2023::parse_file_to_string;
 use advent_of_code_2023::day1;
 
 fn main() {
@@ -13,7 +14,11 @@ fn main() {
     });
 
     match day.number {
-        1 => day1(),
+        1 => {
+            let contents = parse_file_to_string("src/input/day1.txt").unwrap();
+            let i = day1(contents);
+            println!("{i}");
+        }
         _ => println!("Day not implemented"),
     }
 
