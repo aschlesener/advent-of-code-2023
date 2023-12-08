@@ -16,7 +16,7 @@ fn main() {
     match day.number {
         1 => {
             let contents = parse_file_to_string("src/input/day1.txt").unwrap();
-            let i = day1(contents);
+            let i = day1::part1(contents);
             println!("{i}");
         }
         _ => println!("Day not implemented"),
