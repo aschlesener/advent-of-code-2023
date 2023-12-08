@@ -2,6 +2,7 @@ use std::fs;
 use std::error::Error;
 
 pub mod day1;
+pub mod day6_2015;
 
 pub struct AdventDay {
     pub number: i32,
@@ -15,8 +16,8 @@ impl AdventDay {
 
         let day = args[1].clone().parse::<i32>().unwrap();
 
-        if day < 0 || day > 1 {
-            return Err("day not implemented");
+        if day <= 0 {
+            return Err("Please enter number greater than 0");
         }
 
         Ok(AdventDay { number: day, })
