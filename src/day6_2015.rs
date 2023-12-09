@@ -39,15 +39,13 @@ pub fn part1(contents: String) -> i32 {
         // Parse coordinates, e.g. "499,499 through 500,500"
         let (_, coordinates) = line.split_at(coord_start);
         let rect = parse_coords(coordinates);
-        //println!("{:#?}", rect);
 
         // Apply instruction to grid
         apply_instructions(&mut grid, &instruction, rect);
     }
 
     // Check how many lights are lit
-
-    0
+    return count_lights(&grid);
 }
 
 fn parse_coords(coordinates: &str) -> Rectangle {
@@ -72,27 +70,41 @@ fn parse_coords(coordinates: &str) -> Rectangle {
 }
 
 fn apply_instructions(grid: &mut Grid, instruction: &SwitchLight, rect: Rectangle) {
-    println!("Applying instructions");
-
     for x in rect.start.x..(rect.end.x + 1) {
         for y in rect.start.y..(rect.end.y + 1) {
-            match(instruction) {
-                on => { 
-                    //grid.get(x).unwrap().get(y);
-                }
-                off => {
+            let value = grid[x as usize][y as usize];
 
+            match instruction {
+                SwitchLight::On => { 
+                    grid[x as usize][y as usize] = 1;
                 }
-                toggle=> {
-
+                SwitchLight::Off => {
+                    grid[x as usize][y as usize] = 0;
                 }
-                _ => {
-
+                SwitchLight::Toggle=> {
+                    if value == 1 {
+                        grid[x as usize][y as usize] = 0;
+                    } else if value == 0 {
+                        grid[x as usize][y as usize] = 1;
+                    }
                 }
-
-            }
+            } 
         }
     }
+}
+
+fn count_lights(grid: &Grid) -> i32 {
+    let mut lights_on = 0;
+
+    for row in grid.iter() {
+        for value in row.iter() {
+           if *value == 1 {
+                lights_on += 1;
+           }
+        }
+    }
+
+    lights_on
 }
 
 #[cfg(test)]
