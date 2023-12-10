@@ -27,9 +27,10 @@ pub fn part1(contents: &str, part2: bool) -> i32 {
 
         // Apply instruction to grid
         if part2 {
-            apply_instructions2(&mut grid, &instruction, rect);
+            // part2 is the same, except the instruction rules are slightly different
+            apply_instructions(&mut grid, &instruction, rect, true);
         } else {
-            apply_instructions(&mut grid, &instruction, rect);
+            apply_instructions(&mut grid, &instruction, rect, false);
         }
     }
 
@@ -79,50 +80,42 @@ fn parse_coords(coordinates: &str) -> Rectangle {
     rect
 }
 
-fn apply_instructions(grid: &mut Grid, instruction: &SwitchLight, rect: Rectangle) {
+fn apply_instructions(grid: &mut Grid, instruction: &SwitchLight, rect: Rectangle, part2: bool) {
     for x in rect.start.x..(rect.end.x + 1) {
         for y in rect.start.y..(rect.end.y + 1) {
             let value = grid[x as usize][y as usize];
 
             match instruction {
                 SwitchLight::On => { 
-                    grid[x as usize][y as usize] = 1;
+                    if part2 {
+                        grid[x as usize][y as usize] += 1;
+                    } else {
+                        grid[x as usize][y as usize] = 1;
+                    }
                 }
                 SwitchLight::Off => {
-                    grid[x as usize][y as usize] = 0;
+                    if part2 {
+                        if value > 0 {
+                            grid[x as usize][y as usize] -= 1;
+                        }                        
+                    } else {
+                        grid[x as usize][y as usize] = 0;
+                    }
                 }
                 SwitchLight::Toggle=> {
-                    if value == 1 {
-                        grid[x as usize][y as usize] = 0;
-                    } else if value == 0 {
-                        grid[x as usize][y as usize] = 1;
+                    if part2 {
+                        grid[x as usize][y as usize] += 2;
+                    } else {
+                        if value == 1 {
+                            grid[x as usize][y as usize] = 0;
+                        } else if value == 0 {
+                            grid[x as usize][y as usize] = 1;
+                        }
                     }
                 }
             } 
         }
     }
-}
-
-fn apply_instructions2(grid: &mut Grid, instruction: &SwitchLight, rect: Rectangle) {
-    for x in rect.start.x..(rect.end.x + 1) {
-        for y in rect.start.y..(rect.end.y + 1) {
-            let value = grid[x as usize][y as usize];
-
-            match instruction {
-                SwitchLight::On => { 
-                    grid[x as usize][y as usize] += 1;
-                }
-                SwitchLight::Off => {
-                    if value > 0 {
-                        grid[x as usize][y as usize] -= 1;
-                    }
-                }
-                SwitchLight::Toggle=> {
-                    grid[x as usize][y as usize] += 2;
-                }
-            } 
-        }
-    }    
 }
 
 fn count_lights(grid: &Grid) -> i32 {
