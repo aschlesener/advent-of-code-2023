@@ -14,38 +14,48 @@ struct Rectangle {
     end: Point,
 }
 
-pub fn part1(contents: String) -> i32 {
+pub fn part1(contents: &str, part2: bool) -> i32 {
     // Create 1000x1000 grid of lights, defaulted to Off
     let mut grid = vec![[0; 1000]; 1000];
     
     for line in contents.lines() {
-        let instruction: SwitchLight;
-        let coord_start;
-
-        // Parse instruction, e.g. "turn off 499,499 through 500,500"
-        if line.contains("turn on") {
-            instruction = SwitchLight::On;
-            coord_start = 8;
-        } else if line.contains("turn of") {
-            instruction = SwitchLight::Off;
-            coord_start = 9;
-        } else if line.contains("toggle") {
-            instruction = SwitchLight::Toggle;
-            coord_start = 7;
-        } else {
-            panic!("Instructions must include turn off, turn on, or toggle");
-        }
+        let (instruction, coord_start) = parse_instructions(line);
 
         // Parse coordinates, e.g. "499,499 through 500,500"
         let (_, coordinates) = line.split_at(coord_start);
         let rect = parse_coords(coordinates);
 
         // Apply instruction to grid
-        apply_instructions(&mut grid, &instruction, rect);
+        if part2 {
+            apply_instructions2(&mut grid, &instruction, rect);
+        } else {
+            apply_instructions(&mut grid, &instruction, rect);
+        }
     }
 
     // Check how many lights are lit
     return count_lights(&grid);
+}
+
+fn parse_instructions(line: &str) -> (SwitchLight, usize) {
+    let instruction: SwitchLight;
+    let coord_start;
+
+    // Parse instruction, e.g. "turn off 499,499 through 500,500"
+    if line.contains("turn on") {
+        instruction = SwitchLight::On;
+        coord_start = 8;
+    } else if line.contains("turn of") {
+        instruction = SwitchLight::Off;
+        coord_start = 9;
+    } else if line.contains("toggle") {
+        instruction = SwitchLight::Toggle;
+        coord_start = 7;
+    } else {
+        panic!("Instructions must include turn off, turn on, or toggle");
+    }
+
+    return (instruction, coord_start)
 }
 
 fn parse_coords(coordinates: &str) -> Rectangle {
@@ -93,14 +103,34 @@ fn apply_instructions(grid: &mut Grid, instruction: &SwitchLight, rect: Rectangl
     }
 }
 
+fn apply_instructions2(grid: &mut Grid, instruction: &SwitchLight, rect: Rectangle) {
+    for x in rect.start.x..(rect.end.x + 1) {
+        for y in rect.start.y..(rect.end.y + 1) {
+            let value = grid[x as usize][y as usize];
+
+            match instruction {
+                SwitchLight::On => { 
+                    grid[x as usize][y as usize] += 1;
+                }
+                SwitchLight::Off => {
+                    if value > 0 {
+                        grid[x as usize][y as usize] -= 1;
+                    }
+                }
+                SwitchLight::Toggle=> {
+                    grid[x as usize][y as usize] += 2;
+                }
+            } 
+        }
+    }    
+}
+
 fn count_lights(grid: &Grid) -> i32 {
     let mut lights_on = 0;
 
     for row in grid.iter() {
         for value in row.iter() {
-           if *value == 1 {
-                lights_on += 1;
-           }
+                lights_on += value;
         }
     }
 
@@ -116,6 +146,13 @@ mod tests {
         let example: String = "turn on 0,0 through 999,999
 toggle 0,0 through 999,0
 turn off 499,499 through 500,500".to_string();
-        assert_eq!(998996, part1(example));
+        assert_eq!(998996, part1(&example, false));
+    }
+
+    #[test]
+    fn part2_test() {
+        let example: String = "turn on 0,0 through 0,0
+toggle 0,0 through 999,999".to_string();
+        assert_eq!(2000001, part1(&example, true));
     }
 }

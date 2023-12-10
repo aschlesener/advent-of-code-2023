@@ -22,7 +22,9 @@ fn main() {
         }
         62015 => {
             let contents: String = parse_file_to_string("src/input/day6_2015.txt").unwrap();
-            let i = day6_2015::part1(contents);
+            let i = day6_2015::part1(&contents, false);
+            println!("{i}");
+            let i = day6_2015::part1(&contents, true);
             println!("{i}");
         }
         _ => println!("Day not implemented"),
